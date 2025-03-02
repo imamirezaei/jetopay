@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: jetopay-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: main_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  bank-destination:
+    build:
+      context: ./services/bank-destination
+    ports:
+      - "3002:3002"
+    depends_on:
+      - postgres
+    environment:
+      PORT: 3002
+      DATABASE_URL: postgres://postgres:123456@postgres:5432/bank_destination
+
+  bank-source:
+    build:
+      context: ./services/bank-source
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgres://postgres:123456@postgres:5432/bank_source
+
+  gateway-api:
+    build:
+      context: ./services/gateway-api
+    ports:
+      - "3007:3007"
+    depends_on:
+      - postgres
+    environment:
+      PORT: 3007
+      DATABASE_URL: postgres://postgres:123456@postgres:5432/gateway_api
+
+  hub-shaparak:
+    build:
+      context: ./services/hub-shaparak
+    ports:
+      - "3006:3006"
+    depends_on:
+      - postgres
+    environment:
+      PORT: 3006
+      DATABASE_URL: postgres://postgres:123456@postgres:5432/hub_shaparak
+
+  psp:
+    build:
+      context: ./services/psp
+    ports:
+      - "3003:3003"
+    depends_on:
+      - postgres
+    environment:
+      PORT: 3003
+      DATABASE_URL: postgres://postgres:123456@postgres:5432/psp
+
+  shaparak:
+    build:
+      context: ./services/shaparak
+    ports:
+      - "3005:3005"
+    depends_on:
+      - postgres
+    environment:
+      PORT: 3005
+      DATABASE_URL: postgres://postgres:123456@postgres:5432/shaparak
+
+  shetab:
+    build:
+      context: ./services/shetab
+    ports:
+      - "3004:3004"
+    depends_on:
+      - postgres
+    environment:
+      PORT: 3004
+      DATABASE_URL: postgres://postgres:123456@postgres:5432/shetab
+
+volumes:
+  postgres_data:
